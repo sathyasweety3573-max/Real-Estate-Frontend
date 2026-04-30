@@ -227,12 +227,4 @@ Property images are uploaded using Cloudinary API integration.
 
 Full Stack MERN Developer
 
----
-
-# ⭐ Support
-
-If you like this project:
-
-⭐ Star the repository  
-🍴 Fork the repository
 
