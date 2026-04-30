@@ -2,26 +2,52 @@ import { useState } from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function AddProperty() {
+  const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [type, setType] = useState("");
+  const [bedrooms, setBedrooms] = useState("");
+  const [bathrooms, setBathrooms] = useState("");
+  const [area, setArea] = useState("");
   const [file, setFile] = useState(null);
 
+  const [loading, setLoading] = useState(false);
+
+  // ================= ADD PROPERTY =================
+
   const handleUpload = async () => {
+    if (
+      !title ||
+      !location ||
+      !description ||
+      !price ||
+      !type ||
+      !bedrooms ||
+      !bathrooms ||
+      !area ||
+      !file
+    ) {
+      alert("Please fill all fields ❌");
+      return;
+    }
 
     try {
+      setLoading(true);
 
       const token = localStorage.getItem("token");
 
       if (!token) {
-        return alert("Only Admin Can Add Property ❌");
+        alert("Only Admin Can Add Property ❌");
+        return;
       }
 
-      /* IMAGE UPLOAD */
+      // ================= IMAGE UPLOAD =================
 
       const formData = new FormData();
 
@@ -39,7 +65,7 @@ export default function AddProperty() {
 
       const imageUrl = uploadRes.data.url;
 
-      /* SAVE PROPERTY */
+      // ================= SAVE PROPERTY =================
 
       await API.post(
         "/property",
@@ -48,7 +74,10 @@ export default function AddProperty() {
           location,
           description,
           price,
-
+          type,
+          bedrooms,
+          bathrooms,
+          area,
           images: [imageUrl],
         },
         {
@@ -60,189 +89,382 @@ export default function AddProperty() {
 
       alert("Property Added Successfully ✅");
 
+      // CLEAR FORM
+
       setTitle("");
       setLocation("");
       setDescription("");
       setPrice("");
+      setType("");
+      setBedrooms("");
+      setBathrooms("");
+      setArea("");
       setFile(null);
 
+      navigate("/properties");
     } catch (error) {
-
       console.log(error);
 
       alert("Upload Failed ❌");
-
+    } finally {
+      setLoading(false);
     }
-
   };
 
   return (
-
-    <div className="
-      min-h-screen
-      bg-gradient-to-br
-      from-blue-100
-      via-white
-      to-purple-100
-      pt-32
-    ">
-
+    <div
+      className="
+        min-h-screen
+        bg-gradient-to-br
+        from-slate-100
+        via-blue-50
+        to-purple-100
+      "
+    >
       <Navbar />
 
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="
-          max-w-3xl
-          mx-auto
-          bg-white/80
-          backdrop-blur-xl
-          rounded-3xl
-          shadow-2xl
-          p-10
-        "
-      >
-
-        <h1 className="
-          text-5xl
-          font-bold
-          text-center
-          mb-10
-          bg-gradient-to-r
-          from-blue-600
-          to-purple-600
-          bg-clip-text
-          text-transparent
-        ">
-          Add Property 🏡
-        </h1>
-
-        {/* TITLE */}
-
-        <input
-          type="text"
-          placeholder="Property Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+      <div className="pt-32 pb-20 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
           className="
-            w-full
-            p-4
-            rounded-2xl
+            max-w-5xl
+            mx-auto
+            bg-white/80
+            backdrop-blur-2xl
+            rounded-[40px]
+            shadow-2xl
             border
-            mb-5
-            outline-none
-            focus:ring-2
-            focus:ring-blue-500
-          "
-        />
-
-        {/* LOCATION */}
-
-        <input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="
-            w-full
-            p-4
-            rounded-2xl
-            border
-            mb-5
-            outline-none
-            focus:ring-2
-            focus:ring-blue-500
-          "
-        />
-
-        {/* PRICE */}
-
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="
-            w-full
-            p-4
-            rounded-2xl
-            border
-            mb-5
-            outline-none
-            focus:ring-2
-            focus:ring-blue-500
-          "
-        />
-
-        {/* DESCRIPTION */}
-
-        <textarea
-          rows="5"
-          placeholder="Property Description"
-          value={description}
-          onChange={(e) =>
-            setDescription(e.target.value)
-          }
-          className="
-            w-full
-            p-4
-            rounded-2xl
-            border
-            mb-5
-            outline-none
-            focus:ring-2
-            focus:ring-blue-500
-          "
-        ></textarea>
-
-        {/* IMAGE */}
-
-        <div className="
-          border-2
-          border-dashed
-          rounded-2xl
-          p-6
-          text-center
-          mb-6
-          bg-gray-50
-        ">
-
-          <input
-            type="file"
-            onChange={(e) =>
-              setFile(e.target.files[0])
-            }
-          />
-
-        </div>
-
-        {/* BUTTON */}
-
-        <button
-          onClick={handleUpload}
-          className="
-            w-full
-            py-4
-            rounded-2xl
-            text-white
-            text-xl
-            font-bold
-            bg-gradient-to-r
-            from-blue-600
-            to-purple-600
-            shadow-xl
-            hover:scale-105
-            transition
-            duration-300
+            border-white/40
+            overflow-hidden
           "
         >
-          Upload Property 🚀
-        </button>
+          {/* HEADER */}
 
-      </motion.div>
+          <div
+            className="
+              bg-gradient-to-r
+              from-blue-600
+              to-purple-600
+              p-10
+              text-white
+            "
+          >
+            <h1 className="text-5xl font-bold">
+              Add New Property 🏡
+            </h1>
 
+            <p className="mt-4 text-lg text-blue-100">
+              Upload premium property listings with
+              complete details and images.
+            </p>
+          </div>
+
+          {/* FORM */}
+
+          <div className="p-10">
+
+            {/* PROPERTY TITLE */}
+
+            <div className="mb-6">
+              <label className="font-semibold text-gray-700">
+                Property Title
+              </label>
+
+              <input
+                type="text"
+                placeholder="Luxury Villa"
+                value={title}
+                onChange={(e) =>
+                  setTitle(e.target.value)
+                }
+                className="
+                  w-full
+                  mt-2
+                  p-4
+                  rounded-2xl
+                  border
+                  outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                "
+              />
+            </div>
+
+            {/* LOCATION + TYPE */}
+
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Location
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Chennai"
+                  value={location}
+                  onChange={(e) =>
+                    setLocation(e.target.value)
+                  }
+                  className="
+                    w-full
+                    mt-2
+                    p-4
+                    rounded-2xl
+                    border
+                    outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                  "
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Property Type
+                </label>
+
+                <select
+                  value={type}
+                  onChange={(e) =>
+                    setType(e.target.value)
+                  }
+                  className="
+                    w-full
+                    mt-2
+                    p-4
+                    rounded-2xl
+                    border
+                    outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                  "
+                >
+                  <option value="">
+                    Select Type
+                  </option>
+
+                  <option>
+                    Apartment
+                  </option>
+
+                  <option>
+                    Villa
+                  </option>
+
+                  <option>
+                    Penthouse
+                  </option>
+
+                  <option>
+                    Farm House
+                  </option>
+                </select>
+              </div>
+
+            </div>
+
+            {/* PRICE + BEDROOMS */}
+
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Price
+                </label>
+
+                <input
+                  type="number"
+                  placeholder="2500000"
+                  value={price}
+                  onChange={(e) =>
+                    setPrice(e.target.value)
+                  }
+                  className="
+                    w-full
+                    mt-2
+                    p-4
+                    rounded-2xl
+                    border
+                    outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                  "
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Bedrooms
+                </label>
+
+                <input
+                  type="number"
+                  placeholder="3"
+                  value={bedrooms}
+                  onChange={(e) =>
+                    setBedrooms(e.target.value)
+                  }
+                  className="
+                    w-full
+                    mt-2
+                    p-4
+                    rounded-2xl
+                    border
+                    outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                  "
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Bathrooms
+                </label>
+
+                <input
+                  type="number"
+                  placeholder="2"
+                  value={bathrooms}
+                  onChange={(e) =>
+                    setBathrooms(e.target.value)
+                  }
+                  className="
+                    w-full
+                    mt-2
+                    p-4
+                    rounded-2xl
+                    border
+                    outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                  "
+                />
+              </div>
+
+            </div>
+
+            {/* AREA */}
+
+            <div className="mb-6">
+              <label className="font-semibold text-gray-700">
+                Area (sq.ft)
+              </label>
+
+              <input
+                type="number"
+                placeholder="2400"
+                value={area}
+                onChange={(e) =>
+                  setArea(e.target.value)
+                }
+                className="
+                  w-full
+                  mt-2
+                  p-4
+                  rounded-2xl
+                  border
+                  outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                "
+              />
+            </div>
+
+            {/* DESCRIPTION */}
+
+            <div className="mb-6">
+              <label className="font-semibold text-gray-700">
+                Description
+              </label>
+
+              <textarea
+                rows="6"
+                placeholder="Describe property..."
+                value={description}
+                onChange={(e) =>
+                  setDescription(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+                  p-4
+                  rounded-2xl
+                  border
+                  outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                "
+              ></textarea>
+            </div>
+
+            {/* IMAGE */}
+
+            <div
+              className="
+                border-2
+                border-dashed
+                border-blue-300
+                rounded-3xl
+                p-10
+                text-center
+                bg-blue-50
+                mb-8
+              "
+            >
+              <p className="text-lg font-semibold text-gray-700">
+                Upload Property Image 📸
+              </p>
+
+              <input
+                type="file"
+                className="mt-5"
+                onChange={(e) =>
+                  setFile(e.target.files[0])
+                }
+              />
+
+              {file && (
+                <p className="mt-4 text-green-600">
+                  Selected: {file.name}
+                </p>
+              )}
+            </div>
+
+            {/* BUTTON */}
+
+            <button
+              onClick={handleUpload}
+              disabled={loading}
+              className="
+                w-full
+                py-5
+                rounded-3xl
+                text-white
+                text-xl
+                font-bold
+                bg-gradient-to-r
+                from-blue-600
+                to-purple-600
+                shadow-2xl
+                hover:scale-[1.02]
+                transition
+                duration-300
+                disabled:opacity-50
+              "
+            >
+              {loading
+                ? "Uploading..."
+                : "Upload Property 🚀"}
+            </button>
+
+          </div>
+        </motion.div>
+      </div>
     </div>
-
   );
-
 }
