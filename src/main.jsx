@@ -11,21 +11,16 @@ import { Toaster } from "react-hot-toast";
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
-
   <React.StrictMode>
-
     <AuthProvider>
-
       <ThemeProvider>
 
-        {/* ✅ GLOBAL TOAST */}
-
+        {/* ✅ GLOBAL TOASTER (ONLY HERE) */}
         <Toaster
           position="top-right"
           reverseOrder={false}
           toastOptions={{
             duration: 3000,
-
             style: {
               background: "#111827",
               color: "#fff",
@@ -33,13 +28,11 @@ ReactDOM.createRoot(
               padding: "16px",
               fontSize: "15px",
             },
-
             success: {
               style: {
                 background: "#16a34a",
               },
             },
-
             error: {
               style: {
                 background: "#dc2626",
@@ -51,9 +44,6 @@ ReactDOM.createRoot(
         <App />
 
       </ThemeProvider>
-
     </AuthProvider>
-
   </React.StrictMode>
-
 );

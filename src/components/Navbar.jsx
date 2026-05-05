@@ -1,96 +1,90 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+
+import {
+  useState,
+  useEffect,
+  useRef,
+} from "react";
+
+import {
+  Home,
+  Building2,
+  Info,
+  Phone,
+  Plus,
+  LayoutDashboard,
+  LogOut,
+  User,
+  Menu,
+  X,
+  Heart,
+  CalendarCheck,
+  Settings,
+} from "lucide-react";
 
 export default function Navbar() {
-
   const location = useLocation();
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
   const [open, setOpen] = useState(false);
-  const [mobileMenu, setMobileMenu] =
-    useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
 
   const dropdownRef = useRef(null);
 
-  // ================= LOAD USER =================
-
   useEffect(() => {
-
-    const storedUser =
-      localStorage.getItem("user");
+    const storedUser = localStorage.getItem("user");
 
     if (storedUser) {
-
       try {
-
         setUser(JSON.parse(storedUser));
-
       } catch {
-
         localStorage.removeItem("user");
-
+        localStorage.removeItem("token");
       }
-
     }
-
   }, []);
 
-  // ================= CLOSE DROPDOWN =================
-
   useEffect(() => {
-
     const handleClickOutside = (e) => {
-
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(
-          e.target
-        )
+        !dropdownRef.current.contains(e.target)
       ) {
         setOpen(false);
       }
-
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
-
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-
   }, []);
 
-  // ================= LOGOUT =================
-
   const handleLogout = () => {
-
     localStorage.removeItem("user");
     localStorage.removeItem("token");
 
     setUser(null);
-
     setOpen(false);
+    setMobileMenu(false);
 
-    navigate("/");
-
-    window.location.reload();
-
+    navigate("/login");
   };
 
-  // ================= ACTIVE LINK =================
+  const isAdmin = user?.user?.role === "admin";
 
   const navLink = (path) => `
-    relative
+    flex
+    items-center
+    gap-2
     text-[15px]
     font-semibold
     transition
@@ -102,8 +96,11 @@ export default function Navbar() {
     }
   `;
 
-  return (
+  const closeMobile = () => {
+    setMobileMenu(false);
+  };
 
+  return (
     <motion.nav
       initial={{ y: -80 }}
       animate={{ y: 0 }}
@@ -111,67 +108,69 @@ export default function Navbar() {
         sticky
         top-0
         z-50
+        bg-white/80
         backdrop-blur-2xl
-        bg-white/75
         border-b
-        border-white/30
+        border-white/40
         shadow-lg
       "
     >
-
-      <div className="
-        max-w-7xl
-        mx-auto
-        px-6
-        py-4
-        flex
-        justify-between
-        items-center
-      ">
-
+      <div
+        className="
+          max-w-7xl
+          mx-auto
+          px-5
+          md:px-6
+          py-4
+          flex
+          justify-between
+          items-center
+        "
+      >
         {/* LOGO */}
 
         <div
           onClick={() => navigate("/")}
-          className="
-            cursor-pointer
-          "
+          className="cursor-pointer"
         >
-
-          <h1 className="
-            text-2xl
-            font-bold
-            bg-gradient-to-r
-            from-blue-600
-            to-purple-600
-            bg-clip-text
-            text-transparent
-          ">
+          <h1
+            className="
+              text-xl
+              md:text-2xl
+              font-extrabold
+              bg-gradient-to-r
+              from-blue-600
+              to-purple-600
+              bg-clip-text
+              text-transparent
+            "
+          >
             🏡 Lidharshana Homez
           </h1>
 
-          <p className="
-            text-xs
-            text-gray-500
-          ">
-            Luxury Real Estate Platform
+          <p
+            className="
+              text-[11px]
+              md:text-xs
+              text-gray-500
+            "
+          >
+            Premium Real Estate
           </p>
-
         </div>
 
         {/* DESKTOP MENU */}
 
-        <div className="
-          hidden
-          lg:flex
-          items-center
-          gap-7
-        ">
-
-          <Link
-            to="/"
-            className={navLink("/")}
-          >
+        <div
+          className="
+            hidden
+            lg:flex
+            items-center
+            gap-7
+          "
+        >
+          <Link to="/" className={navLink("/")}>
+            <Home size={18} />
             Home
           </Link>
 
@@ -179,118 +178,117 @@ export default function Navbar() {
             to="/properties"
             className={navLink("/properties")}
           >
+            <Building2 size={18} />
             Properties
           </Link>
 
-          <Link
-            to="/about"
-            className={navLink("/about")}
-          >
+          <Link to="/about" className={navLink("/about")}>
+            <Info size={18} />
             About
           </Link>
 
-          <Link
-            to="/contact"
-            className={navLink("/contact")}
-          >
+          <Link to="/contact" className={navLink("/contact")}>
+            <Phone size={18} />
             Contact
           </Link>
 
-          {/* ADMIN BUTTON */}
+          {isAdmin && (
+            <>
+              <Link
+                to="/admin"
+                className="
+                  bg-black
+                  text-white
+                  px-5
+                  py-2.5
+                  rounded-2xl
+                  shadow-lg
+                  hover:bg-gray-800
+                  transition
+                  flex
+                  items-center
+                  gap-2
+                  font-semibold
+                "
+              >
+                <LayoutDashboard size={18} />
+                Admin
+              </Link>
 
-          <Link
-            to="/admin"
-            className="
-              bg-black
-              text-white
-              px-5
-              py-2.5
-              rounded-2xl
-              hover:bg-gray-800
-              transition
-              shadow-lg
-            "
-          >
-            Admin ⚡
-          </Link>
-
-          {/* ADD PROPERTY */}
-
-          <Link
-            to="/add-property"
-            className="
-              bg-gradient-to-r
-              from-blue-600
-              to-purple-600
-              text-white
-              px-5
-              py-2.5
-              rounded-2xl
-              hover:scale-105
-              transition
-              shadow-lg
-            "
-          >
-            + Add Property
-          </Link>
-
-          {/* PROFILE */}
+              <Link
+                to="/add-property"
+                className="
+                  bg-gradient-to-r
+                  from-blue-600
+                  to-purple-600
+                  text-white
+                  px-5
+                  py-2.5
+                  rounded-2xl
+                  shadow-lg
+                  hover:scale-105
+                  transition
+                  flex
+                  items-center
+                  gap-2
+                  font-semibold
+                "
+              >
+                <Plus size={18} />
+                Add Property
+              </Link>
+            </>
+          )}
 
           {user ? (
-
-            <div
-              className="relative"
-              ref={dropdownRef}
-            >
-
+            <div className="relative" ref={dropdownRef}>
               <button
-                onClick={() =>
-                  setOpen(!open)
-                }
+                onClick={() => setOpen(!open)}
                 className="
                   flex
                   items-center
                   gap-3
                   bg-white
-                  px-4
+                  px-3
                   py-2
                   rounded-full
-                  shadow-lg
                   border
+                  shadow-lg
                   hover:scale-105
                   transition
                 "
               >
-
-                <div className="
-                  w-10
-                  h-10
-                  rounded-full
-                  bg-gradient-to-r
-                  from-blue-600
-                  to-purple-600
-                  flex
-                  items-center
-                  justify-center
-                  text-white
-                  font-bold
-                ">
-                  {user?.user?.name?.charAt(0)}
+                <div
+                  className="
+                    w-10
+                    h-10
+                    rounded-full
+                    bg-gradient-to-r
+                    from-blue-600
+                    to-purple-600
+                    flex
+                    items-center
+                    justify-center
+                    text-white
+                    font-bold
+                  "
+                >
+                  {user?.user?.name?.charAt(0) || "U"}
                 </div>
 
-                <span className="
-                  font-semibold
-                  text-gray-700
-                ">
-                  {user?.user?.name}
+                <span
+                  className="
+                    font-semibold
+                    text-gray-700
+                    max-w-[120px]
+                    truncate
+                  "
+                >
+                  {user?.user?.name || "User"}
                 </span>
-
               </button>
 
-              {/* DROPDOWN */}
-
               {open && (
-
                 <motion.div
                   initial={{
                     opacity: 0,
@@ -311,15 +309,258 @@ export default function Navbar() {
                     shadow-2xl
                     border
                     p-6
+                    z-50
                   "
                 >
-
                   <div className="text-center">
+                    <div
+                      className="
+                        w-20
+                        h-20
+                        mx-auto
+                        rounded-full
+                        bg-gradient-to-r
+                        from-blue-600
+                        to-purple-600
+                        flex
+                        items-center
+                        justify-center
+                        text-white
+                        text-3xl
+                        font-bold
+                      "
+                    >
+                      {user?.user?.name?.charAt(0) || "U"}
+                    </div>
 
-                    <div className="
-                      w-20
-                      h-20
-                      mx-auto
+                    <h2
+                      className="
+                        mt-4
+                        text-2xl
+                        font-bold
+                        text-gray-800
+                      "
+                    >
+                      {user?.user?.name || "User"}
+                    </h2>
+
+                    <p
+                      className="
+                        text-gray-500
+                        mt-1
+                        text-sm
+                        break-all
+                      "
+                    >
+                      {user?.user?.email}
+                    </p>
+
+                    <p
+                      className="
+                        mt-3
+                        inline-block
+                        bg-blue-100
+                        text-blue-700
+                        px-4
+                        py-1
+                        rounded-full
+                        text-sm
+                        font-semibold
+                      "
+                    >
+                      {isAdmin ? "Admin" : "Customer"}
+                    </p>
+                  </div>
+
+                  {!isAdmin && (
+                    <div className="mt-6 space-y-3">
+                      <button
+                        onClick={() => navigate("/properties")}
+                        className="
+                          w-full
+                          bg-gray-100
+                          hover:bg-gray-200
+                          text-gray-700
+                          py-3
+                          rounded-2xl
+                          font-semibold
+                          transition
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+                        "
+                      >
+                        <Heart size={18} />
+                        Saved Properties
+                      </button>
+
+                      <button
+                        onClick={() => navigate("/properties")}
+                        className="
+                          w-full
+                          bg-gray-100
+                          hover:bg-gray-200
+                          text-gray-700
+                          py-3
+                          rounded-2xl
+                          font-semibold
+                          transition
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+                        "
+                      >
+                        <CalendarCheck size={18} />
+                        My Bookings
+                      </button>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleLogout}
+                    className="
+                      w-full
+                      mt-5
+                      bg-red-500
+                      hover:bg-red-600
+                      text-white
+                      py-3
+                      rounded-2xl
+                      font-semibold
+                      transition
+                      flex
+                      items-center
+                      justify-center
+                      gap-2
+                    "
+                  >
+                    <LogOut size={18} />
+                    Logout
+                  </button>
+                </motion.div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="
+                border
+                border-blue-600
+                text-blue-600
+                px-6
+                py-2.5
+                rounded-2xl
+                hover:bg-blue-600
+                hover:text-white
+                transition
+                font-semibold
+              "
+            >
+              Login
+            </Link>
+          )}
+        </div>
+
+        {/* MOBILE MENU BUTTON */}
+
+        <button
+          onClick={() => setMobileMenu(!mobileMenu)}
+          className="lg:hidden"
+        >
+          {mobileMenu ? <X size={30} /> : <Menu size={30} />}
+        </button>
+      </div>
+
+      {/* MOBILE MENU */}
+
+      {mobileMenu && (
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: -10,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          className="
+            lg:hidden
+            bg-white
+            px-6
+            pb-6
+            space-y-4
+            shadow-xl
+            border-t
+          "
+        >
+          <Link
+            to="/"
+            onClick={closeMobile}
+            className="flex items-center gap-2 font-semibold text-gray-700"
+          >
+            <Home size={18} />
+            Home
+          </Link>
+
+          <Link
+            to="/properties"
+            onClick={closeMobile}
+            className="flex items-center gap-2 font-semibold text-gray-700"
+          >
+            <Building2 size={18} />
+            Properties
+          </Link>
+
+          <Link
+            to="/about"
+            onClick={closeMobile}
+            className="flex items-center gap-2 font-semibold text-gray-700"
+          >
+            <Info size={18} />
+            About
+          </Link>
+
+          <Link
+            to="/contact"
+            onClick={closeMobile}
+            className="flex items-center gap-2 font-semibold text-gray-700"
+          >
+            <Phone size={18} />
+            Contact
+          </Link>
+
+          {isAdmin && (
+            <>
+              <Link
+                to="/admin"
+                onClick={closeMobile}
+                className="flex items-center gap-2 font-semibold text-gray-700"
+              >
+                <LayoutDashboard size={18} />
+                Admin
+              </Link>
+
+              <Link
+                to="/add-property"
+                onClick={closeMobile}
+                className="flex items-center gap-2 font-semibold text-gray-700"
+              >
+                <Plus size={18} />
+                Add Property
+              </Link>
+            </>
+          )}
+
+          {user ? (
+            <>
+              <div className="bg-slate-100 rounded-2xl p-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="
+                      w-11
+                      h-11
                       rounded-full
                       bg-gradient-to-r
                       from-blue-600
@@ -328,153 +569,62 @@ export default function Navbar() {
                       items-center
                       justify-center
                       text-white
-                      text-3xl
                       font-bold
-                    ">
-                      {user?.user?.name?.charAt(0)}
-                    </div>
-
-                    <h2 className="
-                      mt-4
-                      text-2xl
-                      font-bold
-                    ">
-                      {user?.user?.name}
-                    </h2>
-
-                    <p className="
-                      text-gray-500
-                      text-sm
-                      mt-1
-                    ">
-                      {user?.user?.email}
-                    </p>
-
-                  </div>
-
-                  <button
-                    onClick={handleLogout}
-                    className="
-                      w-full
-                      mt-6
-                      bg-red-500
-                      hover:bg-red-600
-                      text-white
-                      py-3
-                      rounded-2xl
-                      font-semibold
-                      transition
                     "
                   >
-                    Logout 🚪
-                  </button>
+                    {user?.user?.name?.charAt(0) || "U"}
+                  </div>
 
-                </motion.div>
+                  <div>
+                    <p className="font-bold text-gray-800">
+                      {user?.user?.name || "User"}
+                    </p>
 
-              )}
+                    <p className="text-xs text-gray-500 break-all">
+                      {user?.user?.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-            </div>
-
+              <button
+                onClick={handleLogout}
+                className="
+                  w-full
+                  bg-red-500
+                  text-white
+                  py-3
+                  rounded-2xl
+                  font-semibold
+                  flex
+                  justify-center
+                  items-center
+                  gap-2
+                "
+              >
+                <LogOut size={18} />
+                Logout
+              </button>
+            </>
           ) : (
-
             <Link
               to="/login"
+              onClick={closeMobile}
               className="
-                border
-                border-blue-600
-                text-blue-600
-                px-5
-                py-2.5
+                block
+                text-center
+                bg-blue-600
+                text-white
+                py-3
                 rounded-2xl
-                hover:bg-blue-600
-                hover:text-white
-                transition
+                font-semibold
               "
             >
               Login
             </Link>
-
           )}
-
-        </div>
-
-        {/* MOBILE MENU BUTTON */}
-
-        <button
-          onClick={() =>
-            setMobileMenu(!mobileMenu)
-          }
-          className="
-            lg:hidden
-            text-3xl
-          "
-        >
-          ☰
-        </button>
-
-      </div>
-
-      {/* MOBILE MENU */}
-
-      {mobileMenu && (
-
-        <div className="
-          lg:hidden
-          bg-white
-          px-6
-          pb-6
-          space-y-4
-          shadow-xl
-        ">
-
-          <Link
-            to="/"
-            className="block"
-          >
-            Home
-          </Link>
-
-          <Link
-            to="/properties"
-            className="block"
-          >
-            Properties
-          </Link>
-
-          <Link
-            to="/about"
-            className="block"
-          >
-            About
-          </Link>
-
-          <Link
-            to="/contact"
-            className="block"
-          >
-            Contact
-          </Link>
-
-          <Link
-            to="/admin"
-            className="block"
-          >
-            Admin
-          </Link>
-
-          <Link
-            to="/add-property"
-            className="block"
-          >
-            Add Property
-          </Link>
-
-        </div>
-
+        </motion.div>
       )}
-
     </motion.nav>
-
   );
-
 }

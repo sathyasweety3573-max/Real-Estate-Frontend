@@ -2,17 +2,51 @@ import axios from "axios";
 
 const API = axios.create({
   baseURL: "https://real-estate-backend-ollv.onrender.com/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// attach token automatically
-API.interceptors.request.use((req) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+// ================= REQUEST INTERCEPTOR =================
 
-  if (user?.token) {
-    req.headers.Authorization = `Bearer ${user.token}`;
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// ================= RESPONSE INTERCEPTOR =================
+
+API.interceptors.response.use(
+  (response) => response,
+
+  (error) => {
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || "";
+
+    // Forgot/reset password pages-la 401 vandha auto logout redirect panna vendam
+    const isAuthPublicRoute =
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/forgot-password") ||
+      requestUrl.includes("/auth/reset-password");
+
+    if (status === 401 && !isAuthPublicRoute) {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+
+      window.location.href = "/login";
+    }
+
+    return Promise.reject(error);
   }
-
-  return req;
-});
+);
 
 export default API;
