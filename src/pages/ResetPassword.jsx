@@ -36,8 +36,13 @@ export default function ResetPassword() {
       return;
     }
 
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    const strongPassword =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+    if (!strongPassword.test(password)) {
+      toast.error(
+        "Password must be 8+ chars with uppercase, lowercase, number & special character"
+      );
       return;
     }
 
@@ -112,7 +117,7 @@ export default function ResetPassword() {
             </button>
           </div>
 
-          <div className="relative mb-7">
+          <div className="relative mb-3">
             <LockKeyhole
               size={20}
               className="absolute left-4 top-4 text-gray-400"
@@ -134,6 +139,11 @@ export default function ResetPassword() {
               {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
+
+          <p className="text-xs text-gray-500 mb-7 leading-5">
+            Password must contain 8+ characters, uppercase, lowercase, number
+            and special character. Example: Sathya@123
+          </p>
 
           <button
             type="submit"

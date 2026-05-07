@@ -24,9 +24,9 @@ export default function Register() {
     password: "",
   });
 
-  //  redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (token) {
       navigate("/");
     }
@@ -37,22 +37,25 @@ export default function Register() {
 
     const { name, email, password } = form;
 
-    //  trim validation
     if (!name.trim() || !email.trim() || !password.trim()) {
       toast.error("Please fill all fields");
       return;
     }
 
-    //  email validation
     const emailRegex = /\S+@\S+\.\S+/;
+
     if (!emailRegex.test(email)) {
       toast.error("Invalid email format");
       return;
     }
 
-    //  password validation
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    const strongPassword =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+    if (!strongPassword.test(password)) {
+      toast.error(
+        "Password must be 8+ chars with uppercase, lowercase, number & special character"
+      );
       return;
     }
 
@@ -87,9 +90,8 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-green-50 to-blue-100 px-4">
-      
-      {/* BG EFFECT */}
       <div className="absolute w-72 h-72 bg-green-300 rounded-full blur-3xl opacity-20 top-10 left-10"></div>
+
       <div className="absolute w-72 h-72 bg-blue-300 rounded-full blur-3xl opacity-20 bottom-10 right-10"></div>
 
       <motion.div
@@ -97,7 +99,6 @@ export default function Register() {
         animate={{ opacity: 1, y: 0 }}
         className="relative z-10 w-full max-w-md bg-white/80 backdrop-blur-2xl rounded-[35px] shadow-2xl border p-10"
       >
-        {/* ICON */}
         <div className="flex justify-center">
           <div className="w-20 h-20 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center shadow-xl">
             <Home size={38} className="text-white" />
@@ -113,45 +114,61 @@ export default function Register() {
         </p>
 
         <form onSubmit={handleRegister} className="mt-10">
-          
-          {/* NAME */}
           <div className="relative mb-5">
-            <User size={20} className="absolute left-4 top-4 text-gray-400" />
+            <User
+              size={20}
+              className="absolute left-4 top-4 text-gray-400"
+            />
+
             <input
               type="text"
               placeholder="Enter your name"
               value={form.name}
               onChange={(e) =>
-                setForm({ ...form, name: e.target.value })
+                setForm({
+                  ...form,
+                  name: e.target.value,
+                })
               }
               className="w-full pl-12 pr-4 py-4 rounded-2xl border outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
 
-          {/* EMAIL */}
           <div className="relative mb-5">
-            <Mail size={20} className="absolute left-4 top-4 text-gray-400" />
+            <Mail
+              size={20}
+              className="absolute left-4 top-4 text-gray-400"
+            />
+
             <input
               type="email"
               placeholder="Enter your email"
               value={form.email}
               onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
+                setForm({
+                  ...form,
+                  email: e.target.value,
+                })
               }
               className="w-full pl-12 pr-4 py-4 rounded-2xl border outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
 
-          {/* PASSWORD */}
-          <div className="relative mb-8">
-            <LockKeyhole size={20} className="absolute left-4 top-4 text-gray-400" />
+          <div className="relative mb-3">
+            <LockKeyhole
+              size={20}
+              className="absolute left-4 top-4 text-gray-400"
+            />
 
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Create password"
               value={form.password}
               onChange={(e) =>
-                setForm({ ...form, password: e.target.value })
+                setForm({
+                  ...form,
+                  password: e.target.value,
+                })
               }
               className="w-full pl-12 pr-12 py-4 rounded-2xl border outline-none focus:ring-2 focus:ring-green-500"
             />
@@ -165,7 +182,11 @@ export default function Register() {
             </button>
           </div>
 
-          {/* BUTTON */}
+          <p className="text-xs text-gray-500 mb-8 leading-5">
+            Password must contain 8+ characters, uppercase, lowercase, number
+            and special character. Example: Sathya@123
+          </p>
+
           <button
             type="submit"
             disabled={loading}
@@ -177,6 +198,7 @@ export default function Register() {
 
         <p className="text-center text-gray-600 mt-8">
           Already have an account?{" "}
+
           <Link
             to="/login"
             className="text-blue-600 font-semibold hover:underline"

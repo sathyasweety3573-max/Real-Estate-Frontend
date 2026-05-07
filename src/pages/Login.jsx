@@ -192,11 +192,11 @@ export default function Login() {
             </h3>
 
             <button onClick={fillUserDemo} className="w-full mb-2 p-2 bg-white rounded">
-              User → user@gmail.com / user123
+              User → user@gmail.com / user@123
             </button>
 
             <button onClick={fillAdminDemo} className="w-full p-2 bg-white rounded">
-              Admin → admin@gmail.com / admin123
+              Admin → admin@gmail.com / admin@123
             </button>
           </div>
         </motion.div>
