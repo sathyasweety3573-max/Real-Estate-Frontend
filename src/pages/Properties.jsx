@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Search,
   MapPin,
-  SlidersHorizontal,
   Home,
   IndianRupee,
   RotateCcw,
@@ -14,11 +14,13 @@ import PropertyCard from "../components/PropertyCard";
 import API from "../services/api";
 
 export default function Properties() {
+  const [searchParams] = useSearchParams();
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [filters, setFilters] = useState({
-    keyword: "",
+    keyword: searchParams.get("keyword") || "",
     purpose: "",
     type: "",
     minPrice: "",
@@ -28,10 +30,7 @@ export default function Properties() {
   });
 
   const [page, setPage] = useState(1);
-
   const limit = 6;
-
-  // ================= FETCH PROPERTIES =================
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -40,9 +39,10 @@ export default function Properties() {
 
         const res = await API.get("/property");
 
-        setData(res.data || []);
+        setData(res.data.properties || []);
       } catch (err) {
         console.log(err);
+        setData([]);
       } finally {
         setLoading(false);
       }
@@ -50,8 +50,6 @@ export default function Properties() {
 
     fetchProperties();
   }, []);
-
-  // ================= FILTERS =================
 
   const filteredProperties = useMemo(() => {
     let filtered = [...data];
@@ -68,15 +66,11 @@ export default function Properties() {
     }
 
     if (filters.purpose) {
-      filtered = filtered.filter(
-        (item) => item.purpose === filters.purpose
-      );
+      filtered = filtered.filter((item) => item.purpose === filters.purpose);
     }
 
     if (filters.type) {
-      filtered = filtered.filter(
-        (item) => item.type === filters.type
-      );
+      filtered = filtered.filter((item) => item.type === filters.type);
     }
 
     if (filters.bedrooms) {
@@ -104,18 +98,14 @@ export default function Properties() {
     } else if (filters.sort === "popular") {
       filtered.sort((a, b) => Number(b.views || 0) - Number(a.views || 0));
     } else {
-      filtered.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     return filtered;
   }, [data, filters]);
 
-  const totalPages = Math.ceil(filteredProperties.length / limit);
-
+  const totalPages = Math.ceil(filteredProperties.length / limit) || 1;
   const start = (page - 1) * limit;
-
   const paginated = filteredProperties.slice(start, start + limit);
 
   useEffect(() => {
@@ -145,8 +135,6 @@ export default function Properties() {
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-purple-100">
       <Navbar />
 
-      {/* HERO */}
-
       <section className="pt-14 pb-10 px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -158,14 +146,8 @@ export default function Properties() {
         </motion.div>
 
         <motion.h1
-          initial={{
-            opacity: 0,
-            y: -30,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
           className="text-4xl md:text-6xl font-black text-gray-900 mt-6"
         >
           Discover Your
@@ -173,12 +155,8 @@ export default function Properties() {
         </motion.h1>
 
         <motion.p
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           className="mt-6 text-lg text-gray-600 max-w-3xl mx-auto leading-8"
         >
           Search, filter, compare, and book luxury villas, premium apartments,
@@ -186,12 +164,8 @@ export default function Properties() {
         </motion.p>
       </section>
 
-      {/* SEARCH + FILTER BOX */}
-
       <div className="max-w-7xl mx-auto px-6">
         <div className="bg-white/80 backdrop-blur-xl rounded-[35px] shadow-2xl p-6 border border-white/40">
-          {/* SEARCH */}
-
           <div className="relative mb-6">
             <Search className="absolute top-4 left-4 text-gray-400" />
 
@@ -204,8 +178,6 @@ export default function Properties() {
               className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 outline-none focus:ring-4 focus:ring-blue-200 bg-white"
             />
           </div>
-
-          {/* FILTERS */}
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <select
@@ -258,8 +230,6 @@ export default function Properties() {
             </select>
           </div>
 
-          {/* PRICE FILTER */}
-
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             <div className="relative">
               <IndianRupee
@@ -304,8 +274,6 @@ export default function Properties() {
         </div>
       </div>
 
-      {/* COUNT */}
-
       <div className="max-w-7xl mx-auto px-6 mt-8 flex justify-between items-center flex-wrap gap-4">
         <h2 className="text-2xl font-bold text-gray-800">
           Available Properties
@@ -316,8 +284,6 @@ export default function Properties() {
           {filteredProperties.length} properties found
         </div>
       </div>
-
-      {/* GRID */}
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {loading ? (
@@ -357,8 +323,6 @@ export default function Properties() {
           </div>
         )}
       </div>
-
-      {/* PAGINATION */}
 
       {filteredProperties.length > limit && (
         <div className="flex justify-center items-center gap-5 pb-16">
