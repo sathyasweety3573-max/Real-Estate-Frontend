@@ -4,6 +4,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import { Settings } from "lucide-react";
 import { motion } from "framer-motion";
 
 import {
@@ -20,12 +21,10 @@ import {
   Plus,
   LayoutDashboard,
   LogOut,
-  User,
   Menu,
   X,
   Heart,
   CalendarCheck,
-  Settings,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -47,6 +46,7 @@ export default function Navbar() {
       } catch {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        setUser(null);
       }
     }
   }, []);
@@ -76,10 +76,12 @@ export default function Navbar() {
     setOpen(false);
     setMobileMenu(false);
 
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
-  const isAdmin = user?.user?.role === "admin";
+  const loggedUser = user?.user || user;
+
+  const isAdmin = loggedUser?.role === "admin";
 
   const navLink = (path) => `
     flex
@@ -128,9 +130,8 @@ export default function Navbar() {
         "
       >
         {/* LOGO */}
-
         <div
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
           className="cursor-pointer"
         >
           <h1
@@ -160,7 +161,6 @@ export default function Navbar() {
         </div>
 
         {/* DESKTOP MENU */}
-
         <div
           className="
             hidden
@@ -169,7 +169,7 @@ export default function Navbar() {
             gap-7
           "
         >
-          <Link to="/" className={navLink("/")}>
+          <Link to="/home" className={navLink("/home")}>
             <Home size={18} />
             Home
           </Link>
@@ -240,7 +240,7 @@ export default function Navbar() {
             </>
           )}
 
-          {user ? (
+          {loggedUser ? (
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setOpen(!open)}
@@ -273,7 +273,7 @@ export default function Navbar() {
                     font-bold
                   "
                 >
-                  {user?.user?.name?.charAt(0) || "U"}
+                  {loggedUser?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
 
                 <span
@@ -284,7 +284,7 @@ export default function Navbar() {
                     truncate
                   "
                 >
-                  {user?.user?.name || "User"}
+                  {loggedUser?.name || "User"}
                 </span>
               </button>
 
@@ -330,7 +330,7 @@ export default function Navbar() {
                         font-bold
                       "
                     >
-                      {user?.user?.name?.charAt(0) || "U"}
+                      {loggedUser?.name?.charAt(0)?.toUpperCase() || "U"}
                     </div>
 
                     <h2
@@ -341,7 +341,7 @@ export default function Navbar() {
                         text-gray-800
                       "
                     >
-                      {user?.user?.name || "User"}
+                      {loggedUser?.name || "User"}
                     </h2>
 
                     <p
@@ -352,7 +352,7 @@ export default function Navbar() {
                         break-all
                       "
                     >
-                      {user?.user?.email}
+                      {loggedUser?.email}
                     </p>
 
                     <p
@@ -371,11 +371,36 @@ export default function Navbar() {
                       {isAdmin ? "Admin" : "Customer"}
                     </p>
                   </div>
-
+<button
+  onClick={() => {
+    setOpen(false);
+    navigate("/settings");
+  }}
+  className="
+    w-full
+    bg-gray-100
+    hover:bg-gray-200
+    text-gray-700
+    py-3
+    rounded-2xl
+    font-semibold
+    transition
+    flex
+    items-center
+    justify-center
+    gap-2
+  "
+>
+  <Settings size={18} />
+  Settings
+</button>
                   {!isAdmin && (
                     <div className="mt-6 space-y-3">
                       <button
-                        onClick={() => navigate("/properties")}
+                        onClick={() => {
+                          setOpen(false);
+                          navigate("/properties");
+                        }}
                         className="
                           w-full
                           bg-gray-100
@@ -396,7 +421,10 @@ export default function Navbar() {
                       </button>
 
                       <button
-                        onClick={() => navigate("/properties")}
+                        onClick={() => {
+                          setOpen(false);
+                          navigate("/properties");
+                        }}
                         className="
                           w-full
                           bg-gray-100
@@ -464,7 +492,6 @@ export default function Navbar() {
         </div>
 
         {/* MOBILE MENU BUTTON */}
-
         <button
           onClick={() => setMobileMenu(!mobileMenu)}
           className="lg:hidden"
@@ -474,7 +501,6 @@ export default function Navbar() {
       </div>
 
       {/* MOBILE MENU */}
-
       {mobileMenu && (
         <motion.div
           initial={{
@@ -496,7 +522,7 @@ export default function Navbar() {
           "
         >
           <Link
-            to="/"
+            to="/home"
             onClick={closeMobile}
             className="flex items-center gap-2 font-semibold text-gray-700"
           >
@@ -553,7 +579,7 @@ export default function Navbar() {
             </>
           )}
 
-          {user ? (
+          {loggedUser ? (
             <>
               <div className="bg-slate-100 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
@@ -572,16 +598,16 @@ export default function Navbar() {
                       font-bold
                     "
                   >
-                    {user?.user?.name?.charAt(0) || "U"}
+                    {loggedUser?.name?.charAt(0)?.toUpperCase() || "U"}
                   </div>
 
                   <div>
                     <p className="font-bold text-gray-800">
-                      {user?.user?.name || "User"}
+                      {loggedUser?.name || "User"}
                     </p>
 
                     <p className="text-xs text-gray-500 break-all">
-                      {user?.user?.email}
+                      {loggedUser?.email}
                     </p>
                   </div>
                 </div>

@@ -13,13 +13,14 @@ export default function ProtectedRoute({
 
   try {
     user = storedUser ? JSON.parse(storedUser) : null;
-  } catch {
+  } catch (error) {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    user = null;
   }
 
-  const notLoggedIn = !storedUser || !token || !user;
-  const notAdmin = adminOnly && user?.user?.role !== "admin";
+  const notLoggedIn = !user || !token;
+  const notAdmin = adminOnly && user?.role !== "admin";
 
   useEffect(() => {
     if (notLoggedIn) {
@@ -34,7 +35,7 @@ export default function ProtectedRoute({
   }
 
   if (notAdmin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return children;

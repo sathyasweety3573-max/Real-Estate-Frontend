@@ -23,9 +23,6 @@ import rightHouse from "../assets/house-right.png";
 export default function Home() {
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const isLoggedIn = !!user;
-
   const [featured, setFeatured] = useState([]);
   const [search, setSearch] = useState("");
 
@@ -33,7 +30,6 @@ export default function Home() {
     const fetchFeatured = async () => {
       try {
         const res = await API.get("/property/featured");
-
         setFeatured(res.data.properties || []);
       } catch (err) {
         console.log(err);
@@ -54,7 +50,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-purple-100 overflow-hidden">
-      {isLoggedIn && <Navbar />}
+      <Navbar />
 
       <section className="max-w-7xl mx-auto min-h-screen flex items-center px-6 py-10">
         <div className="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center w-full">

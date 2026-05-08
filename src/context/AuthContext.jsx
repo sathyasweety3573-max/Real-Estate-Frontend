@@ -19,23 +19,43 @@ export default function AuthProvider({ children }) {
       try {
         setUser(JSON.parse(storedUser));
         setToken(storedToken);
-      } catch {
+      } catch (error) {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        setUser(null);
+        setToken(null);
       }
     }
 
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
+  const login = (data) => {
+    /*
+      Backend response possible formats:
 
-    localStorage.setItem("user", JSON.stringify(userData));
+      1. { token, user: { name, email, role } }
+      2. { token, name, email, role }
+    */
 
-    if (userData?.token) {
-      setToken(userData.token);
-      localStorage.setItem("token", userData.token);
+    const loginToken = data?.token;
+
+    const loginUser = data?.user
+      ? data.user
+      : {
+          _id: data?._id,
+          name: data?.name,
+          email: data?.email,
+          role: data?.role,
+        };
+
+    setUser(loginUser);
+    setToken(loginToken);
+
+    localStorage.setItem("user", JSON.stringify(loginUser));
+
+    if (loginToken) {
+      localStorage.setItem("token", loginToken);
     }
   };
 

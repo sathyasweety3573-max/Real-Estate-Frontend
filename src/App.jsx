@@ -5,7 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import { Toaster } from "react-hot-toast";
+import { useContext } from "react";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -20,59 +20,44 @@ import AddProperty from "./pages/AddProperty";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 
-// ✅ NEW PAGES
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Settings from "./pages/Settings";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import { AuthContext } from "./context/AuthContext";
+
 export default function App() {
 
-  const user = localStorage.getItem("user");
-  const token = localStorage.getItem("token");
+  const { user, token, loading } =
+    useContext(AuthContext);
 
   const isLoggedIn = user && token;
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <BrowserRouter>
 
-      {/* TOAST CONFIG */}
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: "#111827",
-            color: "#fff",
-            borderRadius: "16px",
-            padding: "16px",
-            fontSize: "15px",
-          },
-        }}
-      />
-
       <Routes>
-
-        {/* ================= HOME ================= */}
 
         <Route
           path="/"
           element={
             isLoggedIn
-              ? <Home />
+              ? <Navigate to="/home" replace />
               : <Navigate to="/login" replace />
           }
         />
-
-        {/* ================= AUTH ================= */}
 
         <Route
           path="/login"
           element={
             isLoggedIn
-              ? <Navigate to="/" replace />
+              ? <Navigate to="/home" replace />
               : <Login />
           }
         />
@@ -81,12 +66,11 @@ export default function App() {
           path="/register"
           element={
             isLoggedIn
-              ? <Navigate to="/" replace />
+              ? <Navigate to="/home" replace />
               : <Register />
           }
         />
 
-        {/* FORGOT PASSWORD */}
         <Route
           path="/forgot-password"
           element={<ForgotPassword />}
@@ -97,16 +81,53 @@ export default function App() {
           element={<ResetPassword />}
         />
 
-        {/* ================= MAIN ================= */}
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/properties" element={<Properties />} />
-        <Route path="/property/:id" element={<PropertyDetails />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route
+          path="/properties"
+          element={
+            <ProtectedRoute>
+              <Properties />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* ================= NEW PAGES ================= */}
+        <Route
+          path="/property/:id"
+          element={
+            <ProtectedRoute>
+              <PropertyDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/about"
+          element={
+            <ProtectedRoute>
+              <About />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/contact"
+          element={
+            <ProtectedRoute>
+              <Contact />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/terms" element={<Terms />} />
+
         <Route path="/privacy" element={<Privacy />} />
 
         <Route
@@ -117,8 +138,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* ================= ADMIN ================= */}
 
         <Route
           path="/add-property"
@@ -135,25 +154,6 @@ export default function App() {
             <ProtectedRoute adminOnly={true}>
               <Admin />
             </ProtectedRoute>
-          }
-        />
-
-        {/* ================= 404 ================= */}
-
-        <Route
-          path="*"
-          element={
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-100">
-              <div className="bg-white p-10 rounded-3xl shadow-2xl text-center">
-                <h1 className="text-6xl font-extrabold text-red-500">
-                  404
-                </h1>
-
-                <p className="mt-4 text-gray-600 text-lg">
-                  Page not found
-                </p>
-              </div>
-            </div>
           }
         />
 

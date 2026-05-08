@@ -7,8 +7,7 @@ const API = axios.create({
   },
 });
 
-// ================= REQUEST INTERCEPTOR =================
-
+// REQUEST INTERCEPTOR
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -22,8 +21,7 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ================= RESPONSE INTERCEPTOR =================
-
+// RESPONSE INTERCEPTOR
 API.interceptors.response.use(
   (response) => response,
 
@@ -31,11 +29,11 @@ API.interceptors.response.use(
     const status = error.response?.status;
     const requestUrl = error.config?.url || "";
 
-    // Forgot/reset password pages-la 401 vandha auto logout redirect panna vendam
     const isAuthPublicRoute =
       requestUrl.includes("/auth/login") ||
       requestUrl.includes("/auth/register") ||
       requestUrl.includes("/auth/forgot-password") ||
+      requestUrl.includes("/auth/verify-reset-token") ||
       requestUrl.includes("/auth/reset-password");
 
     if (status === 401 && !isAuthPublicRoute) {
