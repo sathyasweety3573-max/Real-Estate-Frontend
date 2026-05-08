@@ -1,18 +1,18 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import API from "../services/api";
 
 export default function Contact() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const user = storedUser?.user || storedUser;
 
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
-    name: user?.user?.name || "",
-    email: user?.user?.email || "",
+    name: user?.name || "",
+    email: user?.email || "",
     phone: "",
     subject: "General Inquiry",
     message: "",
@@ -39,8 +39,8 @@ export default function Contact() {
       toast.success(res.data.message || "Message sent successfully ✅");
 
       setForm({
-        name: user?.user?.name || "",
-        email: user?.user?.email || "",
+        name: user?.name || "",
+        email: user?.email || "",
         phone: "",
         subject: "General Inquiry",
         message: "",
@@ -171,7 +171,7 @@ export default function Contact() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-5 rounded-2xl text-xl font-bold hover:scale-[1.02] transition duration-300 shadow-xl disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-5 rounded-2xl text-xl font-bold hover:scale-[1.02] transition duration-300 shadow-xl disabled:opacity-50 cursor-pointer"
               >
                 {loading ? "Sending..." : "Send Message 🚀"}
               </button>
@@ -215,8 +215,6 @@ export default function Contact() {
           </div>
         </motion.div>
       </div>
-
-      <Footer />
     </div>
   );
 }

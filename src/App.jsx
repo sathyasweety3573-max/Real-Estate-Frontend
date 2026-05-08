@@ -23,17 +23,14 @@ import Admin from "./pages/Admin";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Settings from "./pages/Settings";
+import MyBookings from "./pages/MyBookings";
+import Favorites from "./pages/Favorites";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-
 import { AuthContext } from "./context/AuthContext";
 
 export default function App() {
-
-  const { user, token, loading } =
-    useContext(AuthContext);
-
-  const isLoggedIn = user && token;
+  const { loading } = useContext(AuthContext);
 
   if (loading) {
     return null;
@@ -41,35 +38,17 @@ export default function App() {
 
   return (
     <BrowserRouter>
-
       <Routes>
-
+        {/* SITE OPEN FIRST PAGE */}
         <Route
           path="/"
-          element={
-            isLoggedIn
-              ? <Navigate to="/home" replace />
-              : <Navigate to="/login" replace />
-          }
+          element={<Navigate to="/login" replace />}
         />
 
-        <Route
-          path="/login"
-          element={
-            isLoggedIn
-              ? <Navigate to="/home" replace />
-              : <Login />
-          }
-        />
+        {/* AUTH */}
+        <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/register"
-          element={
-            isLoggedIn
-              ? <Navigate to="/home" replace />
-              : <Register />
-          }
-        />
+        <Route path="/register" element={<Register />} />
 
         <Route
           path="/forgot-password"
@@ -81,6 +60,7 @@ export default function App() {
           element={<ResetPassword />}
         />
 
+        {/* PROTECTED USER PAGES */}
         <Route
           path="/home"
           element={
@@ -126,10 +106,6 @@ export default function App() {
           }
         />
 
-        <Route path="/terms" element={<Terms />} />
-
-        <Route path="/privacy" element={<Privacy />} />
-
         <Route
           path="/settings"
           element={
@@ -139,6 +115,30 @@ export default function App() {
           }
         />
 
+        <Route
+          path="/my-bookings"
+          element={
+            <ProtectedRoute>
+              <MyBookings />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/favorites"
+          element={
+            <ProtectedRoute>
+              <Favorites />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* PUBLIC FOOTER PAGES */}
+        <Route path="/terms" element={<Terms />} />
+
+        <Route path="/privacy" element={<Privacy />} />
+
+        {/* ADMIN ONLY */}
         <Route
           path="/add-property"
           element={
@@ -156,9 +156,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
       </Routes>
-
     </BrowserRouter>
   );
 }

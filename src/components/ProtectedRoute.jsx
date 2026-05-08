@@ -6,36 +6,77 @@ export default function ProtectedRoute({
   children,
   adminOnly = false,
 }) {
-  const storedUser = localStorage.getItem("user");
-  const token = localStorage.getItem("token");
 
-  let user = null;
+  const storedUser =
+    localStorage.getItem("user");
+
+  const token =
+    localStorage.getItem("token");
+
+  let parsedUser = null;
 
   try {
-    user = storedUser ? JSON.parse(storedUser) : null;
+
+    parsedUser =
+      storedUser
+        ? JSON.parse(storedUser)
+        : null;
+
   } catch (error) {
+
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    user = null;
+
+    parsedUser = null;
   }
 
-  const notLoggedIn = !user || !token;
-  const notAdmin = adminOnly && user?.role !== "admin";
+  // SUPPORT BOTH STRUCTURES
+  // { role: "admin" }
+  // { user: { role: "admin" } }
 
+  const user =
+    parsedUser?.user || parsedUser;
+
+  const notLoggedIn =
+    !user || !token;
+
+  const notAdmin =
+    adminOnly &&
+    user?.role !== "admin";
+
+  // ONLY ADMIN ERROR TOAST
   useEffect(() => {
-    if (notLoggedIn) {
-      toast.error("Please login first 🔒");
-    } else if (notAdmin) {
-      toast.error("Only Admin Can Access 🚫");
-    }
-  }, [notLoggedIn, notAdmin]);
 
+    if (notAdmin) {
+
+      toast.error(
+        "Only Admin Can Access 🚫"
+      );
+
+    }
+
+  }, [notAdmin]);
+
+  // NOT LOGGED IN
   if (notLoggedIn) {
-    return <Navigate to="/login" replace />;
+
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
   }
 
+  // NOT ADMIN
   if (notAdmin) {
-    return <Navigate to="/home" replace />;
+
+    return (
+      <Navigate
+        to="/home"
+        replace
+      />
+    );
   }
 
   return children;

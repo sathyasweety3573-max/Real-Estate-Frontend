@@ -4,7 +4,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import { Settings } from "lucide-react";
 import { motion } from "framer-motion";
 
 import {
@@ -25,6 +24,7 @@ import {
   X,
   Heart,
   CalendarCheck,
+  Settings,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -48,8 +48,10 @@ export default function Navbar() {
         localStorage.removeItem("token");
         setUser(null);
       }
+    } else {
+      setUser(null);
     }
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -68,6 +70,9 @@ export default function Navbar() {
     };
   }, []);
 
+  const loggedUser = user?.user || user;
+  const isAdmin = loggedUser?.role === "admin";
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
@@ -79,17 +84,14 @@ export default function Navbar() {
     navigate("/login", { replace: true });
   };
 
-  const loggedUser = user?.user || user;
-
-  const isAdmin = loggedUser?.role === "admin";
+  const goToPage = (path) => {
+    setOpen(false);
+    setMobileMenu(false);
+    navigate(path);
+  };
 
   const navLink = (path) => `
-    flex
-    items-center
-    gap-2
-    text-[15px]
-    font-semibold
-    transition
+    flex items-center gap-2 text-[15px] font-semibold transition
     hover:text-blue-600
     ${
       location.pathname === path
@@ -98,86 +100,33 @@ export default function Navbar() {
     }
   `;
 
-  const closeMobile = () => {
-    setMobileMenu(false);
-  };
-
   return (
     <motion.nav
       initial={{ y: -80 }}
       animate={{ y: 0 }}
-      className="
-        sticky
-        top-0
-        z-50
-        bg-white/80
-        backdrop-blur-2xl
-        border-b
-        border-white/40
-        shadow-lg
-      "
+      className="sticky top-0 z-50 bg-white/85 backdrop-blur-2xl border-b border-white/40 shadow-lg"
     >
-      <div
-        className="
-          max-w-7xl
-          mx-auto
-          px-5
-          md:px-6
-          py-4
-          flex
-          justify-between
-          items-center
-        "
-      >
-        {/* LOGO */}
+      <div className="max-w-7xl mx-auto px-5 md:px-6 py-4 flex justify-between items-center">
         <div
-          onClick={() => navigate("/home")}
+          onClick={() => goToPage(loggedUser ? "/home" : "/login")}
           className="cursor-pointer"
         >
-          <h1
-            className="
-              text-xl
-              md:text-2xl
-              font-extrabold
-              bg-gradient-to-r
-              from-blue-600
-              to-purple-600
-              bg-clip-text
-              text-transparent
-            "
-          >
+          <h1 className="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             🏡 Lidharshana Homez
           </h1>
 
-          <p
-            className="
-              text-[11px]
-              md:text-xs
-              text-gray-500
-            "
-          >
+          <p className="text-[11px] md:text-xs text-gray-500">
             Premium Real Estate
           </p>
         </div>
 
-        {/* DESKTOP MENU */}
-        <div
-          className="
-            hidden
-            lg:flex
-            items-center
-            gap-7
-          "
-        >
+        <div className="hidden lg:flex items-center gap-7">
           <Link to="/home" className={navLink("/home")}>
             <Home size={18} />
             Home
           </Link>
 
-          <Link
-            to="/properties"
-            className={navLink("/properties")}
-          >
+          <Link to="/properties" className={navLink("/properties")}>
             <Building2 size={18} />
             Properties
           </Link>
@@ -196,20 +145,7 @@ export default function Navbar() {
             <>
               <Link
                 to="/admin"
-                className="
-                  bg-black
-                  text-white
-                  px-5
-                  py-2.5
-                  rounded-2xl
-                  shadow-lg
-                  hover:bg-gray-800
-                  transition
-                  flex
-                  items-center
-                  gap-2
-                  font-semibold
-                "
+                className="bg-black text-white px-5 py-2.5 rounded-2xl shadow-lg hover:bg-gray-800 transition flex items-center gap-2 font-semibold"
               >
                 <LayoutDashboard size={18} />
                 Admin
@@ -217,22 +153,7 @@ export default function Navbar() {
 
               <Link
                 to="/add-property"
-                className="
-                  bg-gradient-to-r
-                  from-blue-600
-                  to-purple-600
-                  text-white
-                  px-5
-                  py-2.5
-                  rounded-2xl
-                  shadow-lg
-                  hover:scale-105
-                  transition
-                  flex
-                  items-center
-                  gap-2
-                  font-semibold
-                "
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 rounded-2xl shadow-lg hover:scale-105 transition flex items-center gap-2 font-semibold"
               >
                 <Plus size={18} />
                 Add Property
@@ -244,254 +165,91 @@ export default function Navbar() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setOpen(!open)}
-                className="
-                  flex
-                  items-center
-                  gap-3
-                  bg-white
-                  px-3
-                  py-2
-                  rounded-full
-                  border
-                  shadow-lg
-                  hover:scale-105
-                  transition
-                "
+                className="flex items-center gap-3 bg-white px-3 py-2 rounded-full border shadow-lg hover:scale-105 transition cursor-pointer"
               >
-                <div
-                  className="
-                    w-10
-                    h-10
-                    rounded-full
-                    bg-gradient-to-r
-                    from-blue-600
-                    to-purple-600
-                    flex
-                    items-center
-                    justify-center
-                    text-white
-                    font-bold
-                  "
-                >
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold">
                   {loggedUser?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
 
-                <span
-                  className="
-                    font-semibold
-                    text-gray-700
-                    max-w-[120px]
-                    truncate
-                  "
-                >
+                <span className="font-semibold text-gray-700 max-w-[120px] truncate">
                   {loggedUser?.name || "User"}
                 </span>
               </button>
 
               {open && (
                 <motion.div
-                  initial={{
-                    opacity: 0,
-                    y: -10,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                  }}
-                  className="
-                    absolute
-                    right-0
-                    mt-4
-                    w-80
-                    bg-white/95
-                    backdrop-blur-2xl
-                    rounded-3xl
-                    shadow-2xl
-                    border
-                    p-6
-                    z-50
-                  "
+                  initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className="absolute right-0 mt-4 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border p-6 z-50"
                 >
                   <div className="text-center">
-                    <div
-                      className="
-                        w-20
-                        h-20
-                        mx-auto
-                        rounded-full
-                        bg-gradient-to-r
-                        from-blue-600
-                        to-purple-600
-                        flex
-                        items-center
-                        justify-center
-                        text-white
-                        text-3xl
-                        font-bold
-                      "
-                    >
+                    <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-xl">
                       {loggedUser?.name?.charAt(0)?.toUpperCase() || "U"}
                     </div>
 
-                    <h2
-                      className="
-                        mt-4
-                        text-2xl
-                        font-bold
-                        text-gray-800
-                      "
-                    >
+                    <h2 className="mt-4 text-2xl font-bold text-gray-800">
                       {loggedUser?.name || "User"}
                     </h2>
 
-                    <p
-                      className="
-                        text-gray-500
-                        mt-1
-                        text-sm
-                        break-all
-                      "
-                    >
+                    <p className="text-gray-500 mt-1 text-sm break-all">
                       {loggedUser?.email}
                     </p>
 
-                    <p
-                      className="
-                        mt-3
-                        inline-block
-                        bg-blue-100
-                        text-blue-700
-                        px-4
-                        py-1
-                        rounded-full
-                        text-sm
-                        font-semibold
-                      "
-                    >
+                    <p className="mt-3 inline-block bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold">
                       {isAdmin ? "Admin" : "Customer"}
                     </p>
                   </div>
-<button
-  onClick={() => {
-    setOpen(false);
-    navigate("/settings");
-  }}
-  className="
-    w-full
-    bg-gray-100
-    hover:bg-gray-200
-    text-gray-700
-    py-3
-    rounded-2xl
-    font-semibold
-    transition
-    flex
-    items-center
-    justify-center
-    gap-2
-  "
->
-  <Settings size={18} />
-  Settings
-</button>
-                  {!isAdmin && (
-                    <div className="mt-6 space-y-3">
-                      <button
-                        onClick={() => {
-                          setOpen(false);
-                          navigate("/properties");
-                        }}
-                        className="
-                          w-full
-                          bg-gray-100
-                          hover:bg-gray-200
-                          text-gray-700
-                          py-3
-                          rounded-2xl
-                          font-semibold
-                          transition
-                          flex
-                          items-center
-                          justify-center
-                          gap-2
-                        "
-                      >
-                        <Heart size={18} />
-                        Saved Properties
-                      </button>
 
-                      <button
-                        onClick={() => {
-                          setOpen(false);
-                          navigate("/properties");
-                        }}
-                        className="
-                          w-full
-                          bg-gray-100
-                          hover:bg-gray-200
-                          text-gray-700
-                          py-3
-                          rounded-2xl
-                          font-semibold
-                          transition
-                          flex
-                          items-center
-                          justify-center
-                          gap-2
-                        "
-                      >
-                        <CalendarCheck size={18} />
-                        My Bookings
-                      </button>
-                    </div>
-                  )}
+                  <div className="mt-6 space-y-3">
+                    <button
+                      onClick={() => goToPage("/settings")}
+                      className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-2xl font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Settings size={18} />
+                      Settings
+                    </button>
 
-                  <button
-                    onClick={handleLogout}
-                    className="
-                      w-full
-                      mt-5
-                      bg-red-500
-                      hover:bg-red-600
-                      text-white
-                      py-3
-                      rounded-2xl
-                      font-semibold
-                      transition
-                      flex
-                      items-center
-                      justify-center
-                      gap-2
-                    "
-                  >
-                    <LogOut size={18} />
-                    Logout
-                  </button>
+                    {!isAdmin && (
+                      <>
+                        <button
+                          onClick={() => goToPage("/favorites")}
+                          className="w-full bg-pink-50 hover:bg-pink-100 text-pink-700 py-3 rounded-2xl font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <Heart size={18} />
+                          Favorite Properties
+                        </button>
+
+                        <button
+                          onClick={() => goToPage("/my-bookings")}
+                          className="w-full bg-green-50 hover:bg-green-100 text-green-700 py-3 rounded-2xl font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <CalendarCheck size={18} />
+                          My Bookings
+                        </button>
+                      </>
+                    )}
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-2xl font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <LogOut size={18} />
+                      Logout
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </div>
           ) : (
             <Link
               to="/login"
-              className="
-                border
-                border-blue-600
-                text-blue-600
-                px-6
-                py-2.5
-                rounded-2xl
-                hover:bg-blue-600
-                hover:text-white
-                transition
-                font-semibold
-              "
+              className="border border-blue-600 text-blue-600 px-6 py-2.5 rounded-2xl hover:bg-blue-600 hover:text-white transition font-semibold"
             >
               Login
             </Link>
           )}
         </div>
 
-        {/* MOBILE MENU BUTTON */}
         <button
           onClick={() => setMobileMenu(!mobileMenu)}
           className="lg:hidden"
@@ -500,82 +258,61 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* MOBILE MENU */}
       {mobileMenu && (
         <motion.div
-          initial={{
-            opacity: 0,
-            y: -10,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          className="
-            lg:hidden
-            bg-white
-            px-6
-            pb-6
-            space-y-4
-            shadow-xl
-            border-t
-          "
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="lg:hidden bg-white px-6 pb-6 space-y-4 shadow-xl border-t"
         >
-          <Link
-            to="/home"
-            onClick={closeMobile}
+          <button
+            onClick={() => goToPage("/home")}
             className="flex items-center gap-2 font-semibold text-gray-700"
           >
             <Home size={18} />
             Home
-          </Link>
+          </button>
 
-          <Link
-            to="/properties"
-            onClick={closeMobile}
+          <button
+            onClick={() => goToPage("/properties")}
             className="flex items-center gap-2 font-semibold text-gray-700"
           >
             <Building2 size={18} />
             Properties
-          </Link>
+          </button>
 
-          <Link
-            to="/about"
-            onClick={closeMobile}
+          <button
+            onClick={() => goToPage("/about")}
             className="flex items-center gap-2 font-semibold text-gray-700"
           >
             <Info size={18} />
             About
-          </Link>
+          </button>
 
-          <Link
-            to="/contact"
-            onClick={closeMobile}
+          <button
+            onClick={() => goToPage("/contact")}
             className="flex items-center gap-2 font-semibold text-gray-700"
           >
             <Phone size={18} />
             Contact
-          </Link>
+          </button>
 
           {isAdmin && (
             <>
-              <Link
-                to="/admin"
-                onClick={closeMobile}
+              <button
+                onClick={() => goToPage("/admin")}
                 className="flex items-center gap-2 font-semibold text-gray-700"
               >
                 <LayoutDashboard size={18} />
                 Admin
-              </Link>
+              </button>
 
-              <Link
-                to="/add-property"
-                onClick={closeMobile}
+              <button
+                onClick={() => goToPage("/add-property")}
                 className="flex items-center gap-2 font-semibold text-gray-700"
               >
                 <Plus size={18} />
                 Add Property
-              </Link>
+              </button>
             </>
           )}
 
@@ -583,21 +320,7 @@ export default function Navbar() {
             <>
               <div className="bg-slate-100 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
-                  <div
-                    className="
-                      w-11
-                      h-11
-                      rounded-full
-                      bg-gradient-to-r
-                      from-blue-600
-                      to-purple-600
-                      flex
-                      items-center
-                      justify-center
-                      text-white
-                      font-bold
-                    "
-                  >
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold">
                     {loggedUser?.name?.charAt(0)?.toUpperCase() || "U"}
                   </div>
 
@@ -614,40 +337,48 @@ export default function Navbar() {
               </div>
 
               <button
+                onClick={() => goToPage("/settings")}
+                className="w-full bg-gray-100 text-gray-700 py-3 rounded-2xl font-semibold flex justify-center items-center gap-2 cursor-pointer"
+              >
+                <Settings size={18} />
+                Settings
+              </button>
+
+              {!isAdmin && (
+                <>
+                  <button
+                    onClick={() => goToPage("/favorites")}
+                    className="w-full bg-pink-50 text-pink-700 py-3 rounded-2xl font-semibold flex justify-center items-center gap-2 cursor-pointer"
+                  >
+                    <Heart size={18} />
+                    Favorite Properties
+                  </button>
+
+                  <button
+                    onClick={() => goToPage("/my-bookings")}
+                    className="w-full bg-green-50 text-green-700 py-3 rounded-2xl font-semibold flex justify-center items-center gap-2 cursor-pointer"
+                  >
+                    <CalendarCheck size={18} />
+                    My Bookings
+                  </button>
+                </>
+              )}
+
+              <button
                 onClick={handleLogout}
-                className="
-                  w-full
-                  bg-red-500
-                  text-white
-                  py-3
-                  rounded-2xl
-                  font-semibold
-                  flex
-                  justify-center
-                  items-center
-                  gap-2
-                "
+                className="w-full bg-red-500 text-white py-3 rounded-2xl font-semibold flex justify-center items-center gap-2 cursor-pointer"
               >
                 <LogOut size={18} />
                 Logout
               </button>
             </>
           ) : (
-            <Link
-              to="/login"
-              onClick={closeMobile}
-              className="
-                block
-                text-center
-                bg-blue-600
-                text-white
-                py-3
-                rounded-2xl
-                font-semibold
-              "
+            <button
+              onClick={() => goToPage("/login")}
+              className="block w-full text-center bg-blue-600 text-white py-3 rounded-2xl font-semibold"
             >
               Login
-            </Link>
+            </button>
           )}
         </motion.div>
       )}

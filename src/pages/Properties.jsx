@@ -329,7 +329,7 @@ export default function Properties() {
           <button
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
-            className="px-6 py-3 rounded-2xl bg-blue-600 text-white font-semibold shadow-lg hover:scale-105 transition disabled:opacity-40"
+            className="px-6 py-3 rounded-2xl bg-blue-600 text-white font-semibold shadow-lg hover:scale-105 transition disabled:opacity-40 cursor-pointer"
           >
             ← Previous
           </button>
@@ -341,7 +341,7 @@ export default function Properties() {
           <button
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}
-            className="px-6 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow-lg hover:scale-105 transition disabled:opacity-40"
+            className="px-6 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow-lg hover:scale-105 transition disabled:opacity-40 cursor-pointer"
           >
             Next →
           </button>

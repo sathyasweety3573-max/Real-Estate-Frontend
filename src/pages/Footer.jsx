@@ -1,19 +1,14 @@
 import { Link } from "react-router-dom";
 import {
-  Facebook,
-  Instagram,
-  Twitter,
   Mail,
   Phone,
   MapPin,
-  Youtube,
 } from "lucide-react";
 
 export default function Footer() {
   return (
     <footer className="bg-gray-950 text-white mt-20">
       <div className="max-w-7xl mx-auto px-6 py-14 grid md:grid-cols-4 gap-10">
-        {/* BRAND */}
         <div>
           <h2 className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             🏡 Lidharshana Homez
@@ -29,43 +24,44 @@ export default function Footer() {
               href="https://www.facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white/10 p-3 rounded-full hover:bg-blue-600 transition"
+              className="bg-white/10 w-11 h-11 rounded-full hover:bg-blue-600 transition flex items-center justify-center"
             >
-              <Facebook size={20} />
+              <span className="text-lg font-extrabold">f</span>
             </a>
 
             <a
               href="https://www.instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white/10 p-3 rounded-full hover:bg-pink-600 transition"
+              className="bg-white/10 w-11 h-11 rounded-full hover:bg-pink-600 transition flex items-center justify-center"
             >
-              <Instagram size={20} />
+              <span className="text-lg font-extrabold">◎</span>
             </a>
 
             <a
               href="https://www.twitter.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white/10 p-3 rounded-full hover:bg-sky-500 transition"
+              className="bg-white/10 w-11 h-11 rounded-full hover:bg-sky-500 transition flex items-center justify-center"
             >
-              <Twitter size={20} />
+              <span className="text-lg font-extrabold">𝕏</span>
             </a>
 
             <a
               href="https://www.youtube.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white/10 p-3 rounded-full hover:bg-red-600 transition"
+              className="bg-white/10 w-11 h-11 rounded-full hover:bg-red-600 transition flex items-center justify-center"
             >
-              <Youtube size={20} />
+              <span className="text-lg font-extrabold">▶</span>
             </a>
           </div>
         </div>
 
-        {/* QUICK LINKS */}
         <div>
-          <h3 className="text-xl font-bold mb-5">Quick Links</h3>
+          <h3 className="text-xl font-bold mb-5">
+            Quick Links
+          </h3>
 
           <div className="space-y-3 text-gray-400">
             <Link to="/home" className="block hover:text-white">
@@ -86,9 +82,10 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* LEGAL */}
         <div>
-          <h3 className="text-xl font-bold mb-5">Legal</h3>
+          <h3 className="text-xl font-bold mb-5">
+            Legal
+          </h3>
 
           <div className="space-y-3 text-gray-400">
             <Link to="/terms" className="block hover:text-white">
@@ -105,9 +102,10 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* CONTACT */}
         <div>
-          <h3 className="text-xl font-bold mb-5">Contact</h3>
+          <h3 className="text-xl font-bold mb-5">
+            Contact
+          </h3>
 
           <div className="space-y-4 text-gray-400">
             <p className="flex gap-3">
@@ -117,7 +115,7 @@ export default function Footer() {
 
             <a
               href="mailto:support@lidharshanahomez.com"
-              className="flex gap-3 hover:text-white"
+              className="flex gap-3 hover:text-white break-all"
             >
               <Mail size={20} />
               support@lidharshanahomez.com
@@ -134,7 +132,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-white/10 text-center py-5 text-gray-400">
+      <div className="border-t border-white/10 text-center py-5 text-gray-400 px-4">
         © {new Date().getFullYear()} Lidharshana Homez. All rights reserved.
       </div>
     </footer>

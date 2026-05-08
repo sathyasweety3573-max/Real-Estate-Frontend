@@ -517,6 +517,7 @@ export default function About() {
                 hover:scale-[1.02]
                 transition
                 shadow-xl
+                cursor-pointer
               "
             >
               Submit Review 🚀

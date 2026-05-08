@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import {
@@ -28,16 +27,17 @@ export default function PropertyDetails() {
   const [property, setProperty] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
-  const [favLoading, setFavLoading] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const isAdmin = user?.user?.role === "admin";
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const user = storedUser?.user || storedUser;
+  const isAdmin = user?.role === "admin";
 
   const [bookingForm, setBookingForm] = useState({
-    name: user?.user?.name || "",
-    email: user?.user?.email || "",
-    phone: "",
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
     message: "",
   });
 
@@ -45,7 +45,18 @@ export default function PropertyDetails() {
     const fetchProperty = async () => {
       try {
         const res = await API.get(`/property/${id}`);
-        setProperty(res.data.property);
+        const data = res.data.property;
+
+        setProperty(data);
+
+        const savedFavorites =
+          JSON.parse(localStorage.getItem("favorites")) || [];
+
+        const alreadyFavorite = savedFavorites.some(
+          (item) => item._id === data._id
+        );
+
+        setIsFavorite(alreadyFavorite);
       } catch {
         toast.error("Failed to load property ❌");
       }
@@ -66,22 +77,53 @@ export default function PropertyDetails() {
 
   const priceFormat = Number(property.price || 0).toLocaleString("en-IN");
 
-  const handleFavorite = async () => {
+  const handleFavorite = () => {
     if (!user) {
       toast.error("Please login first ❌");
       return;
     }
 
-    try {
-      setFavLoading(true);
+    if (isAdmin) {
+      toast.error("Admin cannot add favorites 🚫");
+      return;
+    }
 
-      const res = await API.post(`/auth/favorite/${property._id}`);
+    const savedFavorites =
+      JSON.parse(localStorage.getItem("favorites")) || [];
 
-      toast.success(res.data.message || "Favourite updated ❤️");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Favourite failed ❌");
-    } finally {
-      setFavLoading(false);
+    const alreadyFavorite = savedFavorites.some(
+      (item) => item._id === property._id
+    );
+
+    if (alreadyFavorite) {
+      const updatedFavorites = savedFavorites.filter(
+        (item) => item._id !== property._id
+      );
+
+      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+
+      setIsFavorite(false);
+      toast.success("Removed from favorites");
+    } else {
+      const newFavorite = {
+        _id: property._id,
+        title: property.title,
+        location: property.location,
+        price: property.price,
+        bedrooms: property.bedrooms || property.rooms || 3,
+        bathrooms: property.bathrooms || 2,
+        image:
+          property.images?.[0] ||
+          "https://via.placeholder.com/600x400",
+      };
+
+      localStorage.setItem(
+        "favorites",
+        JSON.stringify([...savedFavorites, newFavorite])
+      );
+
+      setIsFavorite(true);
+      toast.success("Added to favorites ❤️");
     }
   };
 
@@ -115,9 +157,11 @@ export default function PropertyDetails() {
       setBookingSuccess(true);
       setShowBookingForm(false);
 
-      toast.success("Booking Request Sent 🏡");
+      toast.success("Booking Request Sent 🏡 Waiting for admin approval");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Booking failed ❌");
+      toast.error(
+        err.response?.data?.message || "Booking failed ❌"
+      );
     } finally {
       setBookingLoading(false);
     }
@@ -135,7 +179,10 @@ export default function PropertyDetails() {
         >
           <div className="relative">
             <img
-              src={property.images?.[0] || "https://via.placeholder.com/600x400"}
+              src={
+                property.images?.[0] ||
+                "https://via.placeholder.com/600x400"
+              }
               alt={property.title}
               className="rounded-[35px] h-[420px] md:h-[600px] w-full object-cover shadow-2xl border-4 border-white"
             />
@@ -188,26 +235,34 @@ export default function PropertyDetails() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-8">
               <div className="bg-white rounded-3xl p-6 shadow-lg text-center">
                 <BedDouble className="mx-auto text-blue-600" size={34} />
-                <p className="mt-3 text-2xl font-bold">{property.bedrooms || 3}</p>
+                <p className="mt-3 text-2xl font-bold">
+                  {property.bedrooms || property.rooms || 3}
+                </p>
                 <p className="text-gray-500 text-sm">Bedrooms</p>
               </div>
 
               <div className="bg-white rounded-3xl p-6 shadow-lg text-center">
                 <Bath className="mx-auto text-purple-600" size={34} />
-                <p className="mt-3 text-2xl font-bold">{property.bathrooms || 2}</p>
+                <p className="mt-3 text-2xl font-bold">
+                  {property.bathrooms || 2}
+                </p>
                 <p className="text-gray-500 text-sm">Bathrooms</p>
               </div>
 
               <div className="bg-white rounded-3xl p-6 shadow-lg text-center">
                 <Maximize className="mx-auto text-green-600" size={34} />
-                <p className="mt-3 text-2xl font-bold">{property.area || 1200}</p>
+                <p className="mt-3 text-2xl font-bold">
+                  {property.area || 1200}
+                </p>
                 <p className="text-gray-500 text-sm">Sq.ft</p>
               </div>
             </div>
 
             {property.amenities?.length > 0 && (
               <div className="mt-8 bg-white/80 rounded-3xl p-6 shadow-xl">
-                <h3 className="text-2xl font-bold text-gray-800">Amenities</h3>
+                <h3 className="text-2xl font-bold text-gray-800">
+                  Amenities
+                </h3>
 
                 <div className="flex flex-wrap gap-3 mt-5">
                   {property.amenities.map((item, index) => (
@@ -236,25 +291,15 @@ export default function PropertyDetails() {
               {!isAdmin && (
                 <button
                   onClick={handleFavorite}
-                  disabled={favLoading}
-                  className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-10 py-4 rounded-2xl text-lg font-semibold shadow-xl hover:scale-105 transition disabled:opacity-50 flex items-center gap-2"
+                  className={`${
+                    isFavorite
+                      ? "bg-gray-900"
+                      : "bg-gradient-to-r from-pink-500 to-rose-500"
+                  } text-white px-10 py-4 rounded-2xl text-lg font-semibold shadow-xl hover:scale-105 transition flex items-center gap-2`}
                 >
-                  <Heart size={22} />
-                  {favLoading ? "Updating..." : "Favourite"}
+                  <Heart size={22} fill={isFavorite ? "white" : "none"} />
+                  {isFavorite ? "Remove Favorite" : "Add Favorite"}
                 </button>
-              )}
-
-              {isAdmin && (
-                <div className="bg-white/80 border border-blue-100 rounded-3xl p-6 shadow-xl w-full">
-                  <h3 className="text-2xl font-bold text-gray-800">
-                    Admin Management Mode
-                  </h3>
-
-                  <p className="text-gray-600 mt-3 leading-7">
-                    Admin can manage this property from dashboard. Booking
-                    buttons are hidden for admin to avoid confusion.
-                  </p>
-                </div>
               )}
             </div>
 
@@ -271,7 +316,7 @@ export default function PropertyDetails() {
                 <p className="mt-4 text-gray-700 leading-8">
                   Your booking request for{" "}
                   <span className="font-bold">{property.title}</span> has been
-                  submitted successfully. Our team will contact you soon.
+                  submitted successfully. Waiting for admin approval.
                 </p>
               </motion.div>
             )}
@@ -305,42 +350,60 @@ export default function PropertyDetails() {
 
             <div className="mt-7 space-y-5">
               <div className="relative">
-                <User className="absolute left-4 top-4 text-gray-400" size={20} />
+                <User
+                  className="absolute left-4 top-4 text-gray-400"
+                  size={20}
+                />
 
                 <input
                   type="text"
                   placeholder="Your Name"
                   value={bookingForm.name}
                   onChange={(e) =>
-                    setBookingForm({ ...bookingForm, name: e.target.value })
+                    setBookingForm({
+                      ...bookingForm,
+                      name: e.target.value,
+                    })
                   }
                   className="w-full pl-12 pr-4 py-4 rounded-2xl border outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
               <div className="relative">
-                <Mail className="absolute left-4 top-4 text-gray-400" size={20} />
+                <Mail
+                  className="absolute left-4 top-4 text-gray-400"
+                  size={20}
+                />
 
                 <input
                   type="email"
                   placeholder="Your Email"
                   value={bookingForm.email}
                   onChange={(e) =>
-                    setBookingForm({ ...bookingForm, email: e.target.value })
+                    setBookingForm({
+                      ...bookingForm,
+                      email: e.target.value,
+                    })
                   }
                   className="w-full pl-12 pr-4 py-4 rounded-2xl border outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
               <div className="relative">
-                <Phone className="absolute left-4 top-4 text-gray-400" size={20} />
+                <Phone
+                  className="absolute left-4 top-4 text-gray-400"
+                  size={20}
+                />
 
                 <input
                   type="text"
                   placeholder="Mobile Number"
                   value={bookingForm.phone}
                   onChange={(e) =>
-                    setBookingForm({ ...bookingForm, phone: e.target.value })
+                    setBookingForm({
+                      ...bookingForm,
+                      phone: e.target.value,
+                    })
                   }
                   className="w-full pl-12 pr-4 py-4 rounded-2xl border outline-none focus:ring-2 focus:ring-green-500"
                 />
@@ -357,7 +420,10 @@ export default function PropertyDetails() {
                   placeholder="Message optional"
                   value={bookingForm.message}
                   onChange={(e) =>
-                    setBookingForm({ ...bookingForm, message: e.target.value })
+                    setBookingForm({
+                      ...bookingForm,
+                      message: e.target.value,
+                    })
                   }
                   className="w-full pl-12 pr-4 py-4 rounded-2xl border outline-none focus:ring-2 focus:ring-green-500"
                 />
@@ -384,8 +450,6 @@ export default function PropertyDetails() {
           Back
         </button>
       </div>
-
-      <Footer />
     </div>
   );
 }

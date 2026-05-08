@@ -21,8 +21,9 @@ import Footer from "../components/Footer";
 export default function AddProperty() {
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const isAdmin = user?.user?.role === "admin";
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const user = storedUser?.user || storedUser;
+  const isAdmin = user?.role === "admin";
 
   const [form, setForm] = useState({
     title: "",
@@ -140,7 +141,7 @@ export default function AddProperty() {
             </p>
 
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/home")}
               className="mt-8 bg-black text-white px-8 py-3 rounded-2xl font-semibold hover:bg-gray-800 transition"
             >
               Go Home
