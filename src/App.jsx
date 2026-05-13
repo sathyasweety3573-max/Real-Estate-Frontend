@@ -30,25 +30,75 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthContext } from "./context/AuthContext";
 
 export default function App() {
-  const { loading } = useContext(AuthContext);
+  const { loading, user } =
+    useContext(AuthContext);
 
   if (loading) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-100">
+        <div className="bg-white rounded-3xl shadow-xl px-10 py-8 text-center">
+          <div className="w-14 h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+
+          <p className="mt-5 text-gray-700 font-bold">
+            Loading App...
+          </p>
+        </div>
+      </div>
+    );
   }
+
+  const loggedUser =
+    user?.user || user;
+
+  const defaultRedirect =
+    loggedUser?.role === "admin"
+      ? "/admin"
+      : loggedUser
+      ? "/home"
+      : "/login";
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* SITE OPEN FIRST PAGE */}
+        {/* DEFAULT PAGE */}
         <Route
           path="/"
-          element={<Navigate to="/login" replace />}
+          element={
+            <Navigate
+              to={defaultRedirect}
+              replace
+            />
+          }
         />
 
-        {/* AUTH */}
-        <Route path="/login" element={<Login />} />
+        {/* AUTH PAGES */}
+        <Route
+          path="/login"
+          element={
+            loggedUser ? (
+              <Navigate
+                to={defaultRedirect}
+                replace
+              />
+            ) : (
+              <Login />
+            )
+          }
+        />
 
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/register"
+          element={
+            loggedUser ? (
+              <Navigate
+                to={defaultRedirect}
+                replace
+              />
+            ) : (
+              <Register />
+            )
+          }
+        />
 
         <Route
           path="/forgot-password"
@@ -60,7 +110,7 @@ export default function App() {
           element={<ResetPassword />}
         />
 
-        {/* PROTECTED USER PAGES */}
+        {/* USER PROTECTED PAGES */}
         <Route
           path="/home"
           element={
@@ -133,12 +183,27 @@ export default function App() {
           }
         />
 
-        {/* PUBLIC FOOTER PAGES */}
-        <Route path="/terms" element={<Terms />} />
+        {/* PUBLIC PAGES */}
+        <Route
+          path="/terms"
+          element={<Terms />}
+        />
 
-        <Route path="/privacy" element={<Privacy />} />
+        <Route
+          path="/privacy"
+          element={<Privacy />}
+        />
 
-        {/* ADMIN ONLY */}
+        {/* ADMIN ONLY PAGES */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/add-property"
           element={
@@ -148,12 +213,14 @@ export default function App() {
           }
         />
 
+        {/* WRONG URL FALLBACK */}
         <Route
-          path="/admin"
+          path="*"
           element={
-            <ProtectedRoute adminOnly={true}>
-              <Admin />
-            </ProtectedRoute>
+            <Navigate
+              to={defaultRedirect}
+              replace
+            />
           }
         />
       </Routes>

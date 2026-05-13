@@ -4,80 +4,197 @@ import {
   useState,
 } from "react";
 
-export const AuthContext = createContext();
+export const AuthContext =
+  createContext();
 
-export default function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function AuthProvider({
+  children,
+}) {
+  const [user, setUser] =
+    useState(null);
+
+  const [token, setToken] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  // ================= LOAD USER =================
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
+    try {
+      const storedUser =
+        localStorage.getItem("user");
 
-    if (storedUser && storedToken) {
-      try {
-        setUser(JSON.parse(storedUser));
+      const storedToken =
+        localStorage.getItem("token");
+
+      if (
+        storedUser &&
+        storedToken
+      ) {
+        const parsedUser =
+          JSON.parse(storedUser);
+
+        setUser(parsedUser);
+
         setToken(storedToken);
-      } catch (error) {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-        setUser(null);
-        setToken(null);
       }
-    }
+    } catch (error) {
+      console.log(
+        "Auth Load Error:",
+        error.message
+      );
 
-    setLoading(false);
+      localStorage.removeItem(
+        "user"
+      );
+
+      localStorage.removeItem(
+        "token"
+      );
+
+      setUser(null);
+      setToken(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  // ================= LOGIN =================
+
   const login = (data) => {
-    /*
-      Backend response possible formats:
+    try {
+      /*
+        Backend response formats:
 
-      1. { token, user: { name, email, role } }
-      2. { token, name, email, role }
-    */
+        1.
+        {
+          token,
+          user: {
+            _id,
+            name,
+            email,
+            role
+          }
+        }
 
-    const loginToken = data?.token;
+        2.
+        {
+          token,
+          _id,
+          name,
+          email,
+          role
+        }
+      */
 
-    const loginUser = data?.user
-      ? data.user
-      : {
-          _id: data?._id,
-          name: data?.name,
-          email: data?.email,
-          role: data?.role,
-        };
+      const loginToken =
+        data?.token;
 
-    setUser(loginUser);
-    setToken(loginToken);
+      const loginUser =
+        data?.user
+          ? data.user
+          : {
+              _id: data?._id,
+              name: data?.name,
+              email: data?.email,
+              role:
+                data?.role ||
+                "user",
+            };
 
-    localStorage.setItem("user", JSON.stringify(loginUser));
+      if (
+        !loginToken ||
+        !loginUser
+      ) {
+        console.log(
+          "Invalid login data"
+        );
+        return;
+      }
 
-    if (loginToken) {
-      localStorage.setItem("token", loginToken);
+      // update state
+      setUser(loginUser);
+
+      setToken(loginToken);
+
+      // save storage
+      localStorage.setItem(
+        "user",
+        JSON.stringify(loginUser)
+      );
+
+      localStorage.setItem(
+        "token",
+        loginToken
+      );
+
+      console.log(
+        "✅ Login success"
+      );
+
+      console.log(
+        "Logged user:",
+        loginUser
+      );
+    } catch (error) {
+      console.log(
+        "Login Context Error:",
+        error.message
+      );
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
+  // ================= LOGOUT =================
 
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+  const logout = () => {
+    try {
+      setUser(null);
+
+      setToken(null);
+
+      localStorage.removeItem(
+        "user"
+      );
+
+      localStorage.removeItem(
+        "token"
+      );
+
+      localStorage.removeItem(
+        "rememberMe"
+      );
+
+      console.log(
+        "✅ Logout success"
+      );
+    } catch (error) {
+      console.log(
+        "Logout Error:",
+        error.message
+      );
+    }
+  };
+
+  // ================= VALUES =================
+
+  const value = {
+    user,
+    token,
+    login,
+    logout,
+    loading,
+
+    isAuthenticated:
+      !!user && !!token,
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        token,
-        login,
-        logout,
-        loading,
-      }}
+      value={value}
     >
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
